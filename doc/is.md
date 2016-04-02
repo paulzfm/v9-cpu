@@ -25,13 +25,13 @@ All registers have 32 bits.
 
 ### Instruction Control
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | NOP | 0000000 000 000 000 000000000000000 | do nothing |
 
 ### Arithmetic
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | ADD  | 0000001 ra rb rc ... | ra := rb + rc |
 | ADDI | 0000010 ra rb ... imm | ra := rb + imm |
@@ -54,7 +54,7 @@ All registers have 32 bits.
 
 ### Logic
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | AND  | 0010011 ra rb rc ... | ra := rb and rc |
 | ANDI | 0010100 ra rb ... imm | ra := rb and imm |
@@ -91,7 +91,7 @@ All registers have 32 bits.
 
 ### Floating-point
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | ADDF | 0110011 ... ... ... ... | F0 := F0 .+ F1 |
 | SUBF | 0110100 ... ... ... ... | F0 := F0 .- F1 |
@@ -121,7 +121,7 @@ All registers have 32 bits.
 
 ### Conversion
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | CIF | 1001100 ra ... ... ... | F0 := float(ra) |
 | CUF | 1001101 ra ... ... ... | F0 := float(unsigned(ra)) |
@@ -130,7 +130,7 @@ All registers have 32 bits.
 
 ### Branch
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | BZ   | 1010000 ra ... ... imm | if ra = 0 then PC := PC + imm |
 | BZF  | 1010001 ... ... ... imm | if F0 = 0 then PC := PC + imm |
@@ -149,7 +149,7 @@ All registers have 32 bits.
 
 ### Jump
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | J    | 1011110 ... ... ... imm | PC := PC + imm |
 | JR   | 1011111 ra ... ... ... | PC := PC + ra |
@@ -159,7 +159,7 @@ All registers have 32 bits.
 
 ### Load
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | LW  | 1100011 ra rb ... imm | ra := word(rb + imm) |
 | LH  | 1100011 ra rb ... imm | ra := half(rb + imm) |
@@ -178,7 +178,7 @@ All registers have 32 bits.
 
 ### Store
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | SW  | 1110000 ra rb ... imm | word(rb + imm) := ra |
 | SH  | 1110001 ra rb ... imm | half(rb + imm) := ra(15..0) |
@@ -192,7 +192,7 @@ All registers have 32 bits.
 
 ### Register
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | PUSH | 1111001 ra ... ... ... | SP := SP + 4, word(SP + 4) := ra |
 | POP  | 1111010 ra ... ... ... | ra := word(SP), SP := SP - 4 |
@@ -203,7 +203,7 @@ All registers have 32 bits.
 
 ### System
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | IDLE | 1111111 000 ... ... ... | response hardware interrupt (include timer) |
 | CLI  | 1111111 001 001 rc ... | clear interrupt (rc := IENA, IENA := 0) |
@@ -233,7 +233,7 @@ Notice that here we change the instruction format as
 +--------------+--------+--------+--------+--------+------+
 ```
 
-| Syntax | Machine Code | Semantics |
+| Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
 | LMSZ | 1111111 101 001 ra ... | ra := MEMSZ |
 | MCPY | 1111111 101 010 ra rb rc ... | memcpy(ra, rb, rc) |
