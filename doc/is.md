@@ -194,8 +194,8 @@ All registers have 32 bits.
 
 | Name | Machine Code | Semantics |
 | :----- | :----------- | :-------- |
-| PUSH | 1111001 ra ... ... ... | SP := SP + 4, word(SP + 4) := ra |
-| POP  | 1111010 ra ... ... ... | ra := word(SP), SP := SP - 4 |
+| PUSH | 1111001 ra ... ... ... | SP := SP + 8, word(SP) := ra |
+| POP  | 1111010 ra ... ... ... | ra := word(SP), SP := SP - 8 |
 | MTSP | 1111011 ra ... ... imm | SP := ra + imm |
 | MFPC | 1111100 ra ... ... ... | ra := PC |
 | MFRA | 1111101 ra ... ... ... | ra := RA |
