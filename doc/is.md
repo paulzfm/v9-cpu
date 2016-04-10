@@ -9,7 +9,8 @@
 - PC for program counter
 - FLAGS
 
-All registers have 32 bits.
+All registers, except F0 and F1, have 32 bits.
+F0~F1 are 64-bit floating point registers, i.e. of double type.
 
 ## Instruction Format
 
