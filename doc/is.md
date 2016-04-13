@@ -18,6 +18,13 @@
 
 Notice that floating-point registers have 64 bits, i.e, they are represented in type `double`. All `float` values will be represented in type `double`.
 
+## Axioms
+
+- Memory must be accessed by **byte**, following **small** endian.
+- Stack is 8-byte-aligned, and a 4-byte value is located at the lower four bytes.
+- We use ra, rb, rc to represent register T0, T1, T2, S0, S1, FP, SP or PC.
+- We use fa, fb, fc to represent register F0 or F1.
+
 ## Instruction Format
 
 ```
@@ -34,50 +41,52 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 
 | Notation | Meaning |
 | :------- | :-------- |
-| _ + _ | add signed integers |
-| unsigned(_) + unsigned(_) | add unsigned integers |
-| _ - _ | subtract signed integers |
-| _ * _ | multiply signed integers |
-| unsigned(_) * unsigned(_) | multiply unsigned integers |
-| _ / _ | divide signed integers |
-| unsigned(_) / unsigned(_) | divide unsigned integers |
-| _ % _ | mod signed integers |
-| unsigned(_) % unsigned(_) | mod unsigned integers |
-| _ and _ | bitwise and unsigned integers |
-| _ or _ | bitwise or unsigned integers |
-| _ xor _ | bitwise xor unsigned integers |
-| not _ | bitwise negate unsigned integer |
-| unsigned(_) << unsigned(_) | shift left unsigned integer, the second operand must be in range [0, 32] |
-| unsigned(_) << unsigned(_) | logically shift right unsigned integer, the second operand must be in range [0, 32] |
-| _ >> _ | arithmetically shift right signed integer, the second operand must be in range [0, 32] |
-| _ = _ | whether two integers are equal |
-| _ != _ | whether two integers are not equal |
-| _ < _ | whether the first signed integer is less than the second signed integer |
-| unsigned(_) < unsigned(_) | whether the first unsigned integer is less than the second unsigned integer |
-| _ > _ | whether the first signed integer is greater than the second signed integer |
-| unsigned(_) > unsigned(_) | whether the first unsigned integer is greater than the second unsigned integer |
-| _ <= _ | whether the first signed integer is less or equal than the second signed integer |
-| unsigned(_) <= unsigned(_) | whether the first unsigned integer is less or equal than the second unsigned integer |
-| _ >= _ | whether the first signed integer is greater or equal than the second signed integer |
-| unsigned(_) >= unsigned(_) | whether the first unsigned integer is greater or equal than the second unsigned integer |
-| _ .+ _ | add floating-point numbers |
-| _ .- _ | subtract floating-point numbers |
-| _ .* _ | multiply floating-point numbers |
-| _ ./ _ | divide floating-point numbers |
-| _ .= _ | whether two floating-point numbers are equal |
-| _ .!= _ | whether two floating-point numbers are not equal |
-| _ .< _ | whether the first floating-point numbers is less than the second floating-point numbers |
-| _ .> _ | whether the first floating-point numbers is greater than the second floating-point numbers |
-| _ .<= _ | whether the first floating-point numbers is less or equal than the second floating-point numbers |
-| _ .>= _ | whether the first floating-point numbers is greater or equal than the second floating-point numbers |
-| _ .% _ | mod floating-point numbers |
-| float(_) | convert signed integer into floating-point number |
-| float(unsigned(_)) | convert unsigned integer into floating-point number |
-| signed(_) | convert floating-point number into signed number |
-| unsigned(_) | unsigned extend a immediate integer |
-| word(_) | 32 bits from the starting memory address |
-| half(_) | 16 bits from the starting memory address |
-| byte(_) | 8 bits from the starting memory address |
+| \_ := \_ | assign value of the right operand to the left operand (a register or a memory space) |
+| \_ + \_ | add signed integers |
+| unsigned(\_) + unsigned(\_) | add unsigned integers |
+| \_ - \_ | subtract signed integers |
+| \_ * \_ | multiply signed integers |
+| unsigned(\_) * unsigned(\_) | multiply unsigned integers |
+| \_ / \_ | divide signed integers |
+| unsigned(\_) / unsigned(\_) | divide unsigned integers |
+| \_ % \_ | mod signed integers |
+| unsigned(\_) % unsigned(\_) | mod unsigned integers |
+| \_ and \_ | bitwise and unsigned integers |
+| \_ or \_ | bitwise or unsigned integers |
+| \_ xor \_ | bitwise xor unsigned integers |
+| not \_ | bitwise negate unsigned integer |
+| unsigned(\_) << unsigned(\_) | shift left unsigned integer, the second operand must be in range [0, 32] |
+| unsigned(\_) << unsigned(\_) | logically shift right unsigned integer, the second operand must be in range [0, 32] |
+| \_ >> \_ | arithmetically shift right signed integer, the second operand must be in range [0, 32] |
+| \_ = \_ | whether two integers are equal |
+| \_ != \_ | whether two integers are not equal |
+| \_ < \_ | whether the first signed integer is less than the second signed integer |
+| unsigned(\_) < unsigned(\_) | whether the first unsigned integer is less than the second unsigned integer |
+| \_ > \_ | whether the first signed integer is greater than the second signed integer |
+| unsigned(\_) > unsigned(\_) | whether the first unsigned integer is greater than the second unsigned integer |
+| \_ <= \_ | whether the first signed integer is less or equal than the second signed integer |
+| unsigned(\_) <= unsigned(\_) | whether the first unsigned integer is less or equal than the second unsigned integer |
+| \_ >= \_ | whether the first signed integer is greater or equal than the second signed integer |
+| unsigned(\_) >= unsigned(\_) | whether the first unsigned integer is greater or equal than the second unsigned integer |
+| \_ .+ \_ | add floating-point numbers |
+| \_ .- \_ | subtract floating-point numbers |
+| \_ .* \_ | multiply floating-point numbers |
+| \_ ./ \_ | divide floating-point numbers |
+| \_ .= \_ | whether two floating-point numbers are equal |
+| \_ .!= \_ | whether two floating-point numbers are not equal |
+| \_ .< \_ | whether the first floating-point numbers is less than the second floating-point numbers |
+| \_ .> \_ | whether the first floating-point numbers is greater than the second floating-point numbers |
+| \_ .<= \_ | whether the first floating-point numbers is less or equal than the second floating-point numbers |
+| \_ .>= \_ | whether the first floating-point numbers is greater or equal than the second floating-point numbers |
+| \_ .% \_ | mod floating-point numbers |
+| float(\_) | convert signed integer into floating-point number |
+| float(unsigned(\_)) | convert unsigned integer into floating-point number |
+| signed(\_) | convert floating-point number into signed number |
+| word(\_) | 32 bits from the starting memory address |
+| half(\_) | 16 bits from the starting memory address |
+| byte(\_) | 8 bits from the starting memory address |
+| offset(\_) | shift left the immediate integer and then do signed extension |
+|
 
 ### Instruction Control
 
@@ -149,69 +158,77 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 
 | Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
-| ADDF | 0110011 ... ... ... ... | F0 := F0 .+ F1 |
-| SUBF | 0110100 ... ... ... ... | F0 := F0 .- F1 |
-| MULF | 0110101 ... ... ... ... | F0 := F0 .* F1 |
-| DIVF | 0110110 ... ... ... ... | F0 := F0 ./ F1 |
-| EQF  | 0110111 ... ... ... ... | F0 := if F0 .= F1 then 1 else 0 |
-| NEF  | 0111000 ... ... ... ... | F0 := if F0 .!= F1 then 1 else 0 |
-| LTF  | 0111001 ... ... ... ... | F0 := F0 .< F1 |
-| GTF  | 0111010 ... ... ... ... | F0 := F0 .> F1 |
-| LEF  | 0111011 ... ... ... ... | F0 := F0 .<= F1 |
-| GTF  | 0111100 ... ... ... ... | F0 := F0 .>= F1 |
-| POW  | 0111101 ... ... ... ... | F0 := pow(F0, F1) |
-| FABS | 0111110 ... ... ... ... | F0 := fabs(F1) |
-| LOG  | 0111111 ... ... ... ... | F0 := log(F1) |
-| LOGT | 1000000 ... ... ... ... | F0 := log10(F1) |
-| EXP  | 1000001 ... ... ... ... | F0 := exp(F1) |
-| FLOR | 1000010 ... ... ... ... | F0 := floor(F1) |
-| CEIL | 1000011 ... ... ... ... | F0 := ceil(F1) |
-| SIN  | 1000100 ... ... ... ... | F0 := sin(F1) |
-| COS  | 1000101 ... ... ... ... | F0 := cos(F1) |
-| TAN  | 1000110 ... ... ... ... | F0 := tan(F1) |
-| ASIN | 1000111 ... ... ... ... | F0 := asin(F1) |
-| ACOS | 1001000 ... ... ... ... | F0 := acos(F1) |
-| ATAN | 1001001 ... ... ... ... | F0 := arctan(F1) |
-| SQRT | 1001010 ... ... ... ... | F0 := sqrt(F1) |
-| FMOD | 1001011 ... ... ... ... | F0 := F0 .% F1 |
+| ADDF | 0110011 fa fb fc ... | fa := fb .+ fc |
+| SUBF | 0110100 fa fb fc ... | fa := fb .- fc |
+| MULF | 0110101 fa fb fc ... | fa := fb .* fc |
+| DIVF | 0110110 fa fb fc ... | fa := fb ./ fc |
+| EQF  | 0110111 fa fb fc ... | fa := if fb .= fc then 1 else 0 |
+| NEF  | 0111000 fa fb fc ... | fa := if fb .!= fc then 1 else 0 |
+| LTF  | 0111001 fa fb fc ... | fa := fb .< fc |
+| GTF  | 0111010 fa fb fc ... | fa := fb .> fc |
+| LEF  | 0111011 fa fb fc ... | fa := fb .<= fc |
+| GTF  | 0111100 fa fb fc ... | fa := fb .>= fc |
+| POW  | 0111101 fa fb fc ... | fa := pow(fb, fc) |
+| FABS | 0111110 fa fb ... ... | fa := fabs(fb) |
+| LOG  | 0111111 fa fb ... ... | fa := log(fb) |
+| LOGT | 1000000 fa fb ... ... | fa := log10(fb) |
+| EXP  | 1000001 fa fb ... ... | fa := exp(fb) |
+| FLOR | 1000010 fa fb ... ... | fa := floor(fb) |
+| CEIL | 1000011 fa fb ... ... | fa := ceil(fb) |
+| SIN  | 1000100 fa fb ... ... | fa := sin(fb) |
+| COS  | 1000101 fa fb ... ... | fa := cos(fb) |
+| TAN  | 1000110 fa fb ... ... | fa := tan(fb) |
+| ASIN | 1000111 fa fb ... ... | fa := asin(fb) |
+| ACOS | 1001000 fa fb ... ... | fa := acos(fb) |
+| ATAN | 1001001 fa fb ... ... | fa := arctan(fb) |
+| SQRT | 1001010 fa fb ... ... | fa := sqrt(fb) |
+| FMOD | 1001011 fa fb fc ... | fa := fb .% fc |
 
 ### Conversion
 
 | Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
-| CIF | 1001100 ra ... ... ... | F0 := float(ra) |
-| CUF | 1001101 ra ... ... ... | F0 := float(unsigned(ra)) |
-| CFI | 1001110 ra ... ... ... | ra := signed(F0) |
-| CFU | 1001111 ra ... ... ... | ra := signed(fabs(F0)) |
+| CIF | 1001100 fa ra ... ... | fa := float(ra) |
+| CUF | 1001101 fa ra ... ... | fa := float(unsigned(ra)) |
+| CFI | 1001110 ra fa ... ... | ra := signed(fa) |
+| CFU | 1001111 ra fa ... ... | ra := signed(fabs(fa)) |
 
 ### Branch
 
 | Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
-| BZ   | 1010000 ra ... ... imm | if ra = 0 then PC := PC + imm |
-| BZF  | 1010001 ... ... ... imm | if F0 = 0 then PC := PC + imm |
-| BNZ  | 1010010 ra ... ... imm | if ra != 0 then PC := PC + imm |
-| BNZF | 1010011 ... ... ... imm | if F0 != 0 then PC := PC + imm |
-| BE   | 1010100 ra rb ... imm | if ra = rb then PC := PC + imm |
-| BEF  | 1010101 ... ... ... imm | if F0 = F1 then PC := PC + imm |
-| BNE  | 1010110 ra rb ... imm | if ra != rb then PC := PC + imm |
-| BNEF | 1010111 ... ... ... imm | if F0 != F1 then PC := PC + imm |
-| BLT  | 1011000 ra rb ... imm | if ra < rb then PC := PC + imm |
-| BLTU | 1011001 ra rb ... imm | if unsigned(ra) < unsigned(rb) then PC := PC + imm |
-| BLTF | 1011010 ... ... ... imm | if F0 < F1 then PC := PC + imm |
-| BGT  | 1011011 ra rb ... imm | if ra > rb then PC := PC + imm |
-| BGTU | 1011100 ra rb ... imm | if unsigned(ra) > unsigned(rb) then PC := PC + imm |
-| BGTF | 1011101 ... ... ... imm | if F0 > F1 then PC := PC + imm |
+| BZ   | 1010000 ra ... ... imm | if ra = 0 then PC := PC + offset(imm) |
+| BZF  | 1010001 fa ... ... imm | if fa = 0 then PC := PC + offset(imm) |
+| BNZ  | 1010010 ra ... ... imm | if ra != 0 then PC := PC + offset(imm) |
+| BNZF | 1010011 fa ... ... imm | if fa != 0 then PC := PC + offset(imm) |
+| BE   | 1010100 ra rb ... imm | if ra = rb then PC := PC + offset(imm) |
+| BEF  | 1010101 fa fb ... imm | if fa .= fb then PC := PC + offset(imm) |
+| BNE  | 1010110 ra rb ... imm | if ra != rb then PC := PC + offset(imm) |
+| BNEF | 1010111 fa fb ... imm | if fa != fb then PC := PC + offset(imm) |
+| BLT  | 1011000 ra rb ... imm | if ra .< rb then PC := PC + offset(imm) |
+| BLTU | 1011001 ra rb ... imm | if unsigned(ra) < unsigned(rb) then PC := PC + offset(imm) |
+| BLTF | 1011010 fa fb ... imm | if fa .< fb then PC := PC + offset(imm) |
+| BGT  | 1011011 ra rb ... imm | if ra > rb then PC := PC + offset(imm) |
+| BGTU | 1011100 ra rb ... imm | if unsigned(ra) > unsigned(rb) then PC := PC + offset(imm) |
+| BGTF | 1011101 fa fb ... imm | if fa .> fb then PC := PC + offset(imm) |
 
 ### Jump
 
 | Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
-| J    | 1011110 ... ... ... imm | PC := PC + imm |
+| J    | 1011110 ... ... ... imm | PC := PC + offset(imm) |
 | JR   | 1011111 ra ... ... ... | PC := PC + ra |
-| JAL  | 1100000 ... ... ... imm | RA := PC + 4, PC := PC + imm |
-| JALR | 1100001 ra ... ... ... | RA := PC + 4, PC := PC + ra |
-| JRRA | 1100010 ... ... ... ... | PC := ra |
+
+### Stack
+
+| Name | Machine Code | Meaning |
+| :----- | :----------- | :-------- |
+| POPW | 1100000 000 ra ... ... | ra := word(SP), SP := SP - 8 |
+| POPL | 1100000 001 fa ... ... | fa := long(SP - 4), SP := SP - 8 |
+| PSHW | 1100001 000 ra ... ... | word(SP + 4) := ra, SP := SP + 8 |
+| PSHL | 1100001 001 fa ... ... | long(SP) := fa, SP := SP + 8 |
+| CALL | 1100010 000 ... ... imm | ? PC := PC + offset(imm) |
+| RET  | 1100010 001 ... ... ... | ? |
 
 ### Load
 
@@ -220,17 +237,17 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 | LW  | 1100011 ra rb ... imm | ra := word(rb + imm) |
 | LH  | 1100011 ra rb ... imm | ra := half(rb + imm) |
 | LB  | 1100100 ra rb ... imm | ra := byte(rb + imm) |
-| LF  | 1100101 ra ... ... imm | F0 := word(ra + imm) |
+| LF  | 1100101 fa ra ... imm | fa := word(ra + imm) |
 | LWS | 1100110 ra ... ... imm | ra := word(SP + imm) |
 | LHS | 1100111 ra ... ... imm | ra := half(SP + imm) |
 | LBS | 1101000 ra ... ... imm | ra := byte(SP + imm) |
-| LFS | 1101001 ... ... ... imm | F0 := word(SP + imm) |
+| LFS | 1101001 fa ... ... imm | fa := word(SP + imm) |
 | LWI | 1101010 ra ... ... imm | ra := word(PC + imm) |
 | LI  | 1101011 ra ... ... imm | ra := imm |
 | LIU | 1101100 ra ... ... imm | ra := unsigned(imm) |
 | LIH | 1101101 ra ... ... imm | ra := imm << 16 |
-| LFI | 1101110 ... ... ... imm | F0 := imm |
-| LFIC| 1101111 ... ... ... imm | F0 := float(imm) |
+| LFI | 1101110 fa ... ... imm | fa := imm |
+| LFIC| 1101111 fa ... ... imm | fa := float(imm) |
 
 ### Store
 
@@ -239,23 +256,12 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 | SW  | 1110000 ra rb ... imm | word(rb + imm) := ra |
 | SH  | 1110001 ra rb ... imm | half(rb + imm) := ra(15..0) |
 | SB  | 1110010 ra rb ... imm | byte(rb + imm) := ra(7..0) |
-| SF  | 1110011 ra ... ... imm | word(ra + imm) := F0 |
+| SF  | 1110011 ra fa ... imm | long(ra + imm) := fa |
 | SWS | 1110100 ra ... ... imm | word(SP + imm) := ra |
 | SHS | 1110101 ra ... ... imm | half(SP + imm) := ra(15..0) |
 | SBS | 1110110 ra ... ... imm | byte(SP + imm) := ra(7..0) |
-| SFS | 1110111 ... ... ... imm | word(SP + imm) := F0 |
+| SFS | 1110111 fa ... ... imm | word(SP + imm) := fa |
 | SWI | 1111000 ra ... ... imm | word(PC + imm) := ra |
-
-### Register
-
-| Name | Machine Code | Meaning |
-| :----- | :----------- | :-------- |
-| PUSH | 1111001 ra ... ... ... | SP := SP + 4, word(SP + 4) := ra |
-| POP  | 1111010 ra ... ... ... | ra := word(SP), SP := SP - 4 |
-| MTSP | 1111011 ra ... ... imm | SP := ra + imm |
-| MFPC | 1111100 ra ... ... ... | ra := PC |
-| MFRA | 1111101 ra ... ... ... | ra := RA |
-| MTRA | 1111110 ra ... ... imm | RA := ra + imm |
 
 ### System
 
