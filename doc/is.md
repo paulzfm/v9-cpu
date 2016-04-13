@@ -2,14 +2,21 @@
 
 ## Registers
 
-- R0~R7 for general purpose
-- F0~F1 for floating-point numeric computation
-- RA for return address
-- SP for stack pointer
-- PC for program counter
-- FLAGS
+| Name | Usage | Width | Index |
+| :---:| :-----| :----:| :----:|
+| T0 | general purpose (caller saved) | 32 bits | 000 |
+| T1 | general purpose (caller saved) | 32 bits | 001 |
+| T2 | general purpose (caller saved) | 32 bits | 010 |
+| S0 | general purpose (callee saved) | 32 bits | 011 |
+| S1 | general purpose (callee saved) | 32 bits | 100 |
+| FP | frame pointer | 32 bits | 101 |
+| SP | stack pointer | 32 bits | 110 |
+| PC | program counter | 32 bits | 111 |
+| F0 | floating-point numeric computation | 64 bits ||
+| F1 | floating-point numeric computation | 64 bits ||
+| FLAGS | flag bits | 32 bits ||
 
-All registers have 32 bits.
+Notice that floating-point registers have 64 bits, i.e, they are represented in type `double`. All `float` values will be represented in type `double`.
 
 ## Instruction Format
 
@@ -23,15 +30,64 @@ All registers have 32 bits.
 
 ## Instructions
 
+### Notations
+
+| Notation | Meaning |
+| :------- | :-------- |
+| _ + _ | add signed integers |
+| unsigned(_) + unsigned(_) | add unsigned integers |
+| _ - _ | subtract signed integers |
+| _ * _ | multiply signed integers |
+| unsigned(_) * unsigned(_) | multiply unsigned integers |
+| _ / _ | divide signed integers |
+| unsigned(_) / unsigned(_) | divide unsigned integers |
+| _ % _ | mod signed integers |
+| unsigned(_) % unsigned(_) | mod unsigned integers |
+| _ and _ | bitwise and unsigned integers |
+| _ or _ | bitwise or unsigned integers |
+| _ xor _ | bitwise xor unsigned integers |
+| not _ | bitwise negate unsigned integer |
+| unsigned(_) << unsigned(_) | shift left unsigned integer, the second operand must be in range [0, 32] |
+| unsigned(_) << unsigned(_) | logically shift right unsigned integer, the second operand must be in range [0, 32] |
+| _ >> _ | arithmetically shift right signed integer, the second operand must be in range [0, 32] |
+| _ = _ | whether two integers are equal |
+| _ != _ | whether two integers are not equal |
+| _ < _ | whether the first signed integer is less than the second signed integer |
+| unsigned(_) < unsigned(_) | whether the first unsigned integer is less than the second unsigned integer |
+| _ > _ | whether the first signed integer is greater than the second signed integer |
+| unsigned(_) > unsigned(_) | whether the first unsigned integer is greater than the second unsigned integer |
+| _ <= _ | whether the first signed integer is less or equal than the second signed integer |
+| unsigned(_) <= unsigned(_) | whether the first unsigned integer is less or equal than the second unsigned integer |
+| _ >= _ | whether the first signed integer is greater or equal than the second signed integer |
+| unsigned(_) >= unsigned(_) | whether the first unsigned integer is greater or equal than the second unsigned integer |
+| _ .+ _ | add floating-point numbers |
+| _ .- _ | subtract floating-point numbers |
+| _ .* _ | multiply floating-point numbers |
+| _ ./ _ | divide floating-point numbers |
+| _ .= _ | whether two floating-point numbers are equal |
+| _ .!= _ | whether two floating-point numbers are not equal |
+| _ .< _ | whether the first floating-point numbers is less than the second floating-point numbers |
+| _ .> _ | whether the first floating-point numbers is greater than the second floating-point numbers |
+| _ .<= _ | whether the first floating-point numbers is less or equal than the second floating-point numbers |
+| _ .>= _ | whether the first floating-point numbers is greater or equal than the second floating-point numbers |
+| _ .% _ | mod floating-point numbers |
+| float(_) | convert signed integer into floating-point number |
+| float(unsigned(_)) | convert unsigned integer into floating-point number |
+| signed(_) | convert floating-point number into signed number |
+| unsigned(_) | unsigned extend a immediate integer |
+| word(_) | 32 bits from the starting memory address |
+| half(_) | 16 bits from the starting memory address |
+| byte(_) | 8 bits from the starting memory address |
+
 ### Instruction Control
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | NOP | 0000000 000 000 000 000000000000000 | do nothing |
 
 ### Arithmetic
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | ADD  | 0000001 ra rb rc ... | ra := rb + rc |
 | ADDI | 0000010 ra rb ... imm | ra := rb + imm |
@@ -54,7 +110,7 @@ All registers have 32 bits.
 
 ### Logic
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | AND  | 0010011 ra rb rc ... | ra := rb and rc |
 | ANDI | 0010100 ra rb ... imm | ra := rb and imm |
@@ -70,8 +126,8 @@ All registers have 32 bits.
 | SARI | 0011110 ra rb ... imm | ra := rb >> imm |
 | EQ   | 0011111 ra rb rc ... | ra := if rb = rc then 1 else 0 |
 | EQI  | 0100000 ra rb ... imm | ra := if rb = imm then 1 else 0 |
-| NE   | 0100001 ra rb rc ... | ra := if rb = rc then 0 else 1 |
-| NEI  | 0100010 ra rb ... imm | ra := if rb = imm then 0 else 1 |
+| NE   | 0100001 ra rb rc ... | ra := if rb != rc then 1 else 0 |
+| NEI  | 0100010 ra rb ... imm | ra := if rb != imm then 1 else 0 |
 | LT   | 0100011 ra rb rc ... | ra := if rb < rb then 1 else 0 |
 | LTI  | 0100100 ra rb ... imm | ra := if rb < imm then 1 else 0 |
 | LTU  | 0100101 ra rb rc ... | ra := if unsigned(rb) < unsigned(rb) then 1 else 0 |
@@ -91,14 +147,14 @@ All registers have 32 bits.
 
 ### Floating-point
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | ADDF | 0110011 ... ... ... ... | F0 := F0 .+ F1 |
 | SUBF | 0110100 ... ... ... ... | F0 := F0 .- F1 |
 | MULF | 0110101 ... ... ... ... | F0 := F0 .* F1 |
 | DIVF | 0110110 ... ... ... ... | F0 := F0 ./ F1 |
 | EQF  | 0110111 ... ... ... ... | F0 := if F0 .= F1 then 1 else 0 |
-| NEF  | 0111000 ... ... ... ... | F0 := if F0 .= F1 then 0 else 1 |
+| NEF  | 0111000 ... ... ... ... | F0 := if F0 .!= F1 then 1 else 0 |
 | LTF  | 0111001 ... ... ... ... | F0 := F0 .< F1 |
 | GTF  | 0111010 ... ... ... ... | F0 := F0 .> F1 |
 | LEF  | 0111011 ... ... ... ... | F0 := F0 .<= F1 |
@@ -117,20 +173,20 @@ All registers have 32 bits.
 | ACOS | 1001000 ... ... ... ... | F0 := acos(F1) |
 | ATAN | 1001001 ... ... ... ... | F0 := arctan(F1) |
 | SQRT | 1001010 ... ... ... ... | F0 := sqrt(F1) |
-| FMOD | 1001011 ... ... ... ... | F0 := fmod(F0, F1) |
+| FMOD | 1001011 ... ... ... ... | F0 := F0 .% F1 |
 
 ### Conversion
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | CIF | 1001100 ra ... ... ... | F0 := float(ra) |
 | CUF | 1001101 ra ... ... ... | F0 := float(unsigned(ra)) |
 | CFI | 1001110 ra ... ... ... | ra := signed(F0) |
-| CFU | 1001111 ra ... ... ... | ra := unsigned(F0) |
+| CFU | 1001111 ra ... ... ... | ra := signed(fabs(F0)) |
 
 ### Branch
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | BZ   | 1010000 ra ... ... imm | if ra = 0 then PC := PC + imm |
 | BZF  | 1010001 ... ... ... imm | if F0 = 0 then PC := PC + imm |
@@ -149,7 +205,7 @@ All registers have 32 bits.
 
 ### Jump
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | J    | 1011110 ... ... ... imm | PC := PC + imm |
 | JR   | 1011111 ra ... ... ... | PC := PC + ra |
@@ -159,7 +215,7 @@ All registers have 32 bits.
 
 ### Load
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | LW  | 1100011 ra rb ... imm | ra := word(rb + imm) |
 | LH  | 1100011 ra rb ... imm | ra := half(rb + imm) |
@@ -178,7 +234,7 @@ All registers have 32 bits.
 
 ### Store
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | SW  | 1110000 ra rb ... imm | word(rb + imm) := ra |
 | SH  | 1110001 ra rb ... imm | half(rb + imm) := ra(15..0) |
@@ -192,7 +248,7 @@ All registers have 32 bits.
 
 ### Register
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | PUSH | 1111001 ra ... ... ... | SP := SP + 4, word(SP + 4) := ra |
 | POP  | 1111010 ra ... ... ... | ra := word(SP), SP := SP - 4 |
@@ -203,7 +259,7 @@ All registers have 32 bits.
 
 ### System
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | IDLE | 1111111 000 ... ... ... | response hardware interrupt (include timer) |
 | CLI  | 1111111 001 001 rc ... | clear interrupt (rc := IENA, IENA := 0) |
@@ -233,7 +289,7 @@ Notice that here we change the instruction format as
 +--------------+--------+--------+--------+--------+------+
 ```
 
-| Name | Machine Code | Semantics |
+| Name | Machine Code | Meaning |
 | :----- | :----------- | :-------- |
 | LMSZ | 1111111 101 001 ra ... | ra := MEMSZ |
 | MCPY | 1111111 101 010 ra rb rc ... | memcpy(ra, rb, rc) |
