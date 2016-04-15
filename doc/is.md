@@ -228,6 +228,7 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 | PSHW | 1100001 000 ra ... ... | word(SP + 4) := ra, SP := SP + 8 |
 | PSHL | 1100001 001 fa ... ... | long(SP) := fa, SP := SP + 8 |
 | CALL | 1100010 000 ... ... imm | ? PC := PC + offset(imm) |
+| CALL | 1100010 010 ra ... imm | ? PC := PC + ra |
 | RET  | 1100010 001 ... ... ... | ? |
 
 ### Load
@@ -241,7 +242,7 @@ Notice that floating-point registers have 64 bits, i.e, they are represented in 
 | LWS | 1100110 ra ... ... imm | ra := word(SP + imm) |
 | LHS | 1100111 ra ... ... imm | ra := half(SP + imm) |
 | LBS | 1101000 ra ... ... imm | ra := byte(SP + imm) |
-| LFS | 1101001 fa ... ... imm | fa := word(SP + imm) |
+| LFS | 1101001 fa ... ... imm | fa := long(SP + imm) |
 | LWI | 1101010 ra ... ... imm | ra := word(PC + imm) |
 | LI  | 1101011 ra ... ... imm | ra := imm |
 | LIU | 1101100 ra ... ... imm | ra := unsigned(imm) |
